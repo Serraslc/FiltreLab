@@ -2,6 +2,8 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import {
   ArrowRight,
@@ -193,6 +195,23 @@ function GlassCart() {
 
 export function HeroWave() {
   const prefersReducedMotion = useReducedMotion();
+  const router = useRouter();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [productUrl, setProductUrl] = useState("");
+
+  const focusInput = () => {
+    inputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    setTimeout(() => inputRef.current?.focus(), 300);
+  };
+
+  const handleAnalyze = () => {
+    const trimmed = productUrl.trim();
+    if (!trimmed) {
+      focusInput();
+      return;
+    }
+    router.push(`/dashboard?url=${encodeURIComponent(trimmed)}`);
+  };
 
   return (
     <section className="relative min-h-screen w-full overflow-hidden bg-[#05010f] px-5 pb-16 pt-28 text-white sm:px-8 lg:px-12">
@@ -203,7 +222,7 @@ export function HeroWave() {
 
       <FloatingSignals />
 
-      <div className="absolute inset-x-0 top-[15%] z-0 select-none text-center">
+      <div className="pointer-events-none absolute inset-x-0 top-[15%] z-0 select-none text-center">
         <motion.h1
           className="text-[18vw] font-black leading-none tracking-normal text-transparent opacity-45 [background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(125,211,252,.08)_44%,rgba(217,70,239,.02))] bg-clip-text"
           initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
@@ -235,14 +254,46 @@ export function HeroWave() {
           </p>
 
           <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row lg:justify-start">
-            <button className="group inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-semibold text-[#09031a] shadow-[0_18px_48px_rgba(255,255,255,0.14)] transition hover:bg-cyan-50 active:scale-[0.98]">
+            <button
+              onClick={focusInput}
+              className="group relative z-50 cursor-pointer inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-semibold text-[#09031a] shadow-[0_18px_48px_rgba(255,255,255,0.14)] transition hover:bg-cyan-50 active:scale-[0.98]"
+            >
               Start filtering
               <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
             </button>
-            <button className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-6 text-sm font-semibold text-white shadow-[0_18px_42px_rgba(99,102,241,0.14)] transition hover:border-cyan-200/40 hover:bg-white/[0.1] active:scale-[0.98]">
+            <button
+              onClick={focusInput}
+              className="relative z-50 cursor-pointer inline-flex h-12 items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-6 text-sm font-semibold text-white shadow-[0_18px_42px_rgba(99,102,241,0.14)] transition hover:border-cyan-200/40 hover:bg-white/[0.1] active:scale-[0.98]"
+            >
               <Search className="h-4 w-4 text-cyan-200" />
               Explore assistant
             </button>
+          </div>
+
+          {/* URL Input */}
+          <div className="mt-6 w-full max-w-xl lg:mx-0 mx-auto">
+            <div className="flex items-center gap-2 rounded-2xl border border-white/20 bg-white/[0.07] p-2 shadow-[0_8px_32px_rgba(0,0,0,0.2)] backdrop-blur-sm focus-within:border-cyan-200/40 focus-within:bg-white/[0.1] transition-all">
+              <input
+                ref={inputRef}
+                type="url"
+                value={productUrl}
+                onChange={(e) => setProductUrl(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleAnalyze()}
+                placeholder="Trendyol ürün linkini yapıştır..."
+                className="flex-1 bg-transparent px-3 py-2 text-sm text-white placeholder:text-white/35 outline-none"
+              />
+              <button
+                onClick={handleAnalyze}
+                disabled={!productUrl.trim()}
+                className="relative z-50 cursor-pointer inline-flex h-9 items-center gap-1.5 rounded-xl bg-cyan-400 px-4 text-sm font-semibold text-black transition hover:bg-cyan-300 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                Analiz Et
+              </button>
+            </div>
+            <p className="mt-2 text-center text-[11px] text-white/30 lg:text-left">
+              Trendyol · Hepsiburada · Amazon linklerini destekler
+            </p>
           </div>
 
           <div className="mt-10 grid max-w-2xl grid-cols-1 gap-3 sm:grid-cols-3">
