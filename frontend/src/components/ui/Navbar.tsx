@@ -1,14 +1,16 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Search, ShoppingCart, User, Menu, Sparkles } from "lucide-react";
+import { User, Menu, Sparkles, Sun, Moon } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
+import { useTheme } from "next-themes";
 import { AuthModal } from "./AuthModal";
 
 export function Navbar() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   return (
     <>
@@ -18,26 +20,23 @@ export function Navbar() {
         transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
         className="fixed top-0 left-0 right-0 z-50 p-4 md:p-6 pointer-events-none"
       >
-        <div className="max-w-7xl mx-auto liquid-glass gloss-overlay rounded-full px-7 py-3.5 flex items-center justify-between pointer-events-auto shadow-[0_12px_40px_rgba(0,0,0,0.05)] border border-white">
-          
+        <div className="max-w-7xl mx-auto liquid-glass gloss-overlay rounded-full px-7 py-3.5 flex items-center justify-between pointer-events-auto shadow-[0_12px_40px_rgba(0,0,0,0.05)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.4)] border border-white dark:border-white/10">
+
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-3 group">
-            {/* AI Generated Frosted Glass Logo */}
-            <div className="relative w-12 h-12 rounded-[14px] overflow-hidden group-hover:scale-105 transition-transform duration-700 will-change-transform shadow-[0_4px_15px_rgba(0,0,0,0.06)] border border-white/60 bg-white">
+            <div className="relative w-12 h-12 rounded-[14px] overflow-hidden group-hover:scale-105 transition-transform duration-700 will-change-transform shadow-[0_4px_15px_rgba(0,0,0,0.06)] border border-white/60 bg-white dark:bg-white/10">
               <Image src="/images/logo.png" alt="FiltreLAB Logo" fill className="object-cover scale-110" />
             </div>
-            
-            <span className="text-[22px] font-medium tracking-tight hidden sm:block text-gray-700 drop-shadow-sm">
-              Filtre<span className="font-bold text-gray-900">LAB</span>
-            </span>
+
+            <span className="text-[22px] font-medium tracking-tight hidden sm:block text-gray-700 dark:text-gray-200 drop-shadow-sm">Filtre<span className="font-bold text-gray-900 dark:text-white">LAB</span></span>
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-1">
-            <Link href="/#products" className="px-4 py-2 rounded-full text-[15px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100/50 transition-colors">Kadın</Link>
-            <Link href="/#products" className="px-4 py-2 rounded-full text-[15px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100/50 transition-colors">Erkek</Link>
-            <Link href="/#products" className="px-4 py-2 rounded-full text-[15px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100/50 transition-colors">Aksesuar</Link>
-            <Link href="/dashboard" className="px-4 py-2 rounded-full text-[15px] font-medium text-purple-600 bg-purple-50/50 hover:bg-purple-100/50 transition-colors flex items-center">
+            <Link href="/#products" className="px-4 py-2 rounded-full text-[15px] font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100/50 dark:hover:bg-white/10 transition-colors">Kadın</Link>
+            <Link href="/#products" className="px-4 py-2 rounded-full text-[15px] font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100/50 dark:hover:bg-white/10 transition-colors">Erkek</Link>
+            <Link href="/#products" className="px-4 py-2 rounded-full text-[15px] font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100/50 dark:hover:bg-white/10 transition-colors">Aksesuar</Link>
+            <Link href="/dashboard" className="px-4 py-2 rounded-full text-[15px] font-medium text-purple-600 dark:text-purple-400 bg-purple-50/50 dark:bg-purple-500/10 hover:bg-purple-100/50 dark:hover:bg-purple-500/20 transition-colors flex items-center">
               <Sparkles className="w-4 h-4 mr-1.5" />
               AI Tavsiyeleri
             </Link>
@@ -45,19 +44,22 @@ export function Navbar() {
 
           {/* Icons */}
           <div className="flex items-center space-x-3 sm:space-x-4">
-            <button className="text-gray-500 hover:text-gray-900 transition-transform hover:scale-105 hidden sm:block will-change-transform p-2 bg-white/60 hover:bg-white rounded-full shadow-[inset_0_1px_2px_rgba(255,255,255,1)]">
-              <Search className="w-[18px] h-[18px]" />
+            {/* Dark/Light Toggle */}
+            <button
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              aria-label="Temayı değiştir"
+              className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all hover:scale-105 will-change-transform p-2 bg-white/60 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 rounded-full shadow-[inset_0_1px_2px_rgba(255,255,255,1)]"
+            >
+              {theme === "dark" ? <Sun className="w-[18px] h-[18px]" /> : <Moon className="w-[18px] h-[18px]" />}
             </button>
-            <button className="text-gray-500 hover:text-gray-900 transition-transform hover:scale-105 relative will-change-transform p-2 bg-white/60 hover:bg-white rounded-full shadow-[inset_0_1px_2px_rgba(255,255,255,1)]">
-              <ShoppingCart className="w-[18px] h-[18px]" />
-            </button>
-            <button 
+
+            <button
               onClick={() => setIsAuthOpen(true)}
-              className="text-gray-700 transition-all duration-500 hover:scale-105 bg-white hover:bg-gray-50 border border-white p-2.5 rounded-full shadow-[inset_0_2px_4px_rgba(255,255,255,1),0_4px_12px_rgba(0,0,0,0.05)] will-change-transform flex items-center justify-center"
+              className="text-gray-700 dark:text-gray-200 transition-all duration-500 hover:scale-105 bg-white dark:bg-white/10 hover:bg-gray-50 dark:hover:bg-white/20 border border-white dark:border-white/10 p-2.5 rounded-full shadow-[inset_0_2px_4px_rgba(255,255,255,1),0_4px_12px_rgba(0,0,0,0.05)] will-change-transform flex items-center justify-center"
             >
               <User className="w-[18px] h-[18px]" />
             </button>
-            <button className="md:hidden text-gray-500 hover:text-gray-900 transition-colors p-2 bg-white/60 rounded-full shadow-[inset_0_1px_2px_rgba(255,255,255,1)]">
+            <button className="md:hidden text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors p-2 bg-white/60 dark:bg-white/5 rounded-full shadow-[inset_0_1px_2px_rgba(255,255,255,1)]">
               <Menu className="w-5 h-5" />
             </button>
           </div>

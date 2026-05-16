@@ -2,6 +2,10 @@ import { Navbar } from "@/components/ui/Navbar";
 import { FeaturedProducts } from "@/components/ui/FeaturedProducts";
 import { Chatbot } from "@/components/ui/Chatbot";
 import { HeroWave } from "@/components/ui/HeroWave";
+import { HowItWorks } from "@/components/ui/HowItWorks";
+import { StatsBar } from "@/components/ui/StatsBar";
+import { CategoryCards } from "@/components/ui/CategoryCards";
+import { PremiumCTA } from "@/components/ui/PremiumCTA";
 import { SupportFeedback } from "@/components/ui/SupportFeedback";
 
 export default function Home() {
@@ -9,14 +13,23 @@ export default function Home() {
     <main className="min-h-screen flex flex-col relative overflow-x-hidden selection:bg-purple-200 selection:text-purple-900">
       <Navbar />
 
-      {/* Futuristic Fullscreen Hero Section */}
+      {/* Hero */}
       <HeroWave />
 
-      {/* Spacing before Products */}
-      <div className="h-20" />
+      {/* Nasıl Çalışır? */}
+      <HowItWorks />
 
-      {/* Featured Products */}
+      {/* İstatistik Bandı */}
+      <StatsBar />
+
+      {/* Kategori Kartları */}
+      <CategoryCards />
+
+      {/* AI Koleksiyonu */}
       <FeaturedProducts />
+
+      {/* Hesap / Premium CTA */}
+      <PremiumCTA />
 
       {/* Support and Feedback */}
       <SupportFeedback />

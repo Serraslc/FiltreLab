@@ -18,12 +18,12 @@ export function FeaturedProducts() {
     <section id="products" className="w-full max-w-7xl mx-auto mt-24 px-6 relative z-10">
       <div className="flex items-end justify-between mb-14">
         <div>
-          <h2 className="text-4xl md:text-5xl font-medium tracking-tight mb-3 text-gray-900 drop-shadow-sm">
-            AI <span className="font-semibold text-gray-400">Koleksiyonu</span>
+          <h2 className="text-4xl md:text-5xl font-medium tracking-tight mb-3 text-gray-900 dark:text-white drop-shadow-sm">
+            AI <span className="font-semibold text-gray-400 dark:text-gray-500">Koleksiyonu</span>
           </h2>
-          <p className="text-gray-500 font-light text-[17px] tracking-wide">FiltreLAB tarafından onaylanmış premium seçimler</p>
+          <p className="text-gray-500 dark:text-gray-400 font-light text-[17px] tracking-wide">FiltreLAB tarafından onaylanmış premium seçimler</p>
         </div>
-        <button className="hidden md:flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-all group bg-white/70 px-6 py-2.5 rounded-full border border-white backdrop-blur-xl shadow-[inset_0_1px_3px_rgba(255,255,255,1),0_4px_15px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.08)] active:scale-[0.98]">
+        <button className="hidden md:flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all group bg-white/70 dark:bg-white/5 px-6 py-2.5 rounded-full border border-white dark:border-white/10 backdrop-blur-xl shadow-[inset_0_1px_3px_rgba(255,255,255,1),0_4px_15px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.08)] active:scale-[0.98]">
           <span className="font-medium text-[15px]">Tümünü Keşfet</span>
           <Sparkles className="w-4 h-4 group-hover:rotate-12 transition-transform" />
         </button>
@@ -71,11 +71,11 @@ function ProductCard({ product, index, handleAnalyze }: { product: Product, inde
         }}
       />
       
-      {/* High-Fidelity Layered Acrylic Card (Light Theme) */}
-      <div className="liquid-glass gloss-overlay rounded-[2.5rem] p-4 overflow-hidden h-full flex flex-col relative z-10 transition-transform duration-700 group-hover:-translate-y-2 will-change-transform bg-white/50 backdrop-blur-3xl shadow-[0_12px_40px_rgba(0,0,0,0.04)] group-hover:shadow-[0_20px_60px_rgba(0,0,0,0.1)] border border-white">
-        
+      {/* High-Fidelity Layered Acrylic Card */}
+      <div className="liquid-glass gloss-overlay rounded-[2.5rem] p-4 overflow-hidden h-full flex flex-col relative z-10 transition-transform duration-700 group-hover:-translate-y-2 will-change-transform bg-white/50 dark:bg-white/[0.04] backdrop-blur-3xl shadow-[0_12px_40px_rgba(0,0,0,0.04)] group-hover:shadow-[0_20px_60px_rgba(0,0,0,0.1)] border border-white dark:border-white/10">
+
         {/* Image Container with deep shadow */}
-        <div className="relative w-full h-[22rem] rounded-[2rem] overflow-hidden mb-6 border border-white shadow-[0_8px_25px_rgba(0,0,0,0.06)] bg-gray-100">
+        <div className="relative w-full h-[22rem] rounded-[2rem] overflow-hidden mb-6 border border-white dark:border-white/10 shadow-[0_8px_25px_rgba(0,0,0,0.06)] bg-gray-100 dark:bg-white/5">
           <Image 
             src={product.image} 
             alt={product.name} 
@@ -90,29 +90,27 @@ function ProductCard({ product, index, handleAnalyze }: { product: Product, inde
           <div className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/60 to-transparent pointer-events-none" />
           
           {/* AI Score Badge - Apple Style */}
-          <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-2xl px-4 py-2 rounded-full flex items-center space-x-2 border border-white shadow-[0_4px_15px_rgba(0,0,0,0.08),inset_0_2px_5px_rgba(255,255,255,1)]">
+          <div className="absolute top-4 left-4 bg-white/90 dark:bg-white/10 backdrop-blur-2xl px-4 py-2 rounded-full flex items-center space-x-2 border border-white dark:border-white/10 shadow-[0_4px_15px_rgba(0,0,0,0.08),inset_0_2px_5px_rgba(255,255,255,1)]">
             <BrainCircuit className="w-4 h-4 text-pink-500 drop-shadow-sm" />
-            <span className="text-[12px] font-bold text-gray-800 tracking-wide">{product.aiScore} Skor</span>
+            <span className="text-[12px] font-bold text-gray-800 dark:text-gray-100 tracking-wide">{product.aiScore} Skor</span>
           </div>
         </div>
 
         {/* Product Info */}
         <div className="flex-1 flex flex-col justify-between px-2 pb-2 relative z-10">
           <div>
-            <h3 className="text-[11px] font-bold text-gray-400 tracking-[0.2em] uppercase mb-2">{product.brand}</h3>
-            <h2 className="text-[22px] font-semibold text-gray-900 mb-2 leading-tight drop-shadow-sm">{product.name}</h2>
+            <h3 className="text-[11px] font-bold text-gray-400 dark:text-gray-500 tracking-[0.2em] uppercase mb-2">{product.brand}</h3>
+            <h2 className="text-[22px] font-semibold text-gray-900 dark:text-white mb-2 leading-tight drop-shadow-sm">{product.name}</h2>
           </div>
           <div className="flex items-center justify-between mt-6">
-            <span className="text-2xl font-medium text-gray-900 drop-shadow-sm">{product.price}</span>
-            
-            {/* Analyze Action - Ultra Premium Floating Button */}
-            <button 
+            <span className="text-2xl font-medium text-gray-900 dark:text-white drop-shadow-sm">{product.price}</span>
+
+            {/* Analyze Action */}
+            <button
               onClick={() => handleAnalyze(product.mockUrl)}
-              className="bg-white/90 hover:bg-white border border-white backdrop-blur-xl text-gray-800 p-3.5 rounded-2xl transition-all duration-500 flex items-center justify-center group/btn relative overflow-hidden shadow-[0_4px_15px_rgba(0,0,0,0.06),inset_0_2px_4px_rgba(255,255,255,1)] hover:shadow-[0_10px_25px_rgba(0,0,0,0.12)] active:scale-95"
+              className="btn-holo p-3.5 rounded-2xl flex items-center justify-center group/btn relative overflow-hidden active:scale-95"
             >
-              {/* Gloss sweep on hover */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover/btn:opacity-100 -translate-x-full group-hover/btn:translate-x-full transition-all duration-[0.8s] ease-out" />
-              <Sparkles className="w-5 h-5 text-gray-700 group-hover/btn:rotate-12 transition-transform duration-500 relative z-10" />
+              <Sparkles className="w-5 h-5 text-white group-hover/btn:rotate-12 transition-transform duration-500 relative z-10" />
             </button>
           </div>
         </div>

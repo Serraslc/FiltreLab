@@ -7,6 +7,7 @@ import { useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import {
   ArrowRight,
+  Heart,
   Package,
   Search,
   ShieldCheck,
@@ -15,10 +16,99 @@ import {
   Star,
 } from "lucide-react";
 
+/* ── Glass Ribbon ──────────────────────────────────────────── */
+function GlassRibbon() {
+  return (
+    <div
+      className="pointer-events-none absolute inset-x-[-10%] z-[5] w-[120%]"
+      style={{ top: "25%" }}
+      aria-hidden="true"
+    >
+      {/* Outer glow halo */}
+      <div
+        className="absolute blur-3xl"
+        style={{
+          inset: "-30px 0",
+          background:
+            "linear-gradient(90deg, rgba(34,211,238,0.22), rgba(168,85,247,0.38), rgba(244,114,182,0.22))",
+          transform: "rotate(-4deg)",
+        }}
+      />
+
+      {/* Main ribbon band */}
+      <div style={{ transform: "rotate(-4deg)", transformOrigin: "center" }}>
+        <div className="relative overflow-hidden" style={{ height: "136px" }}>
+
+          {/* Glass blur backdrop */}
+          <div className="absolute inset-0" style={{ backdropFilter: "blur(10px) saturate(160%)", WebkitBackdropFilter: "blur(10px) saturate(160%)" }} />
+
+          {/* Iridescent gradient — layer 1 */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(95deg, rgba(34,211,238,0.30) 0%, rgba(96,165,250,0.38) 20%, rgba(168,85,247,0.44) 50%, rgba(240,113,182,0.38) 80%, rgba(34,211,238,0.30) 100%)",
+              backgroundSize: "300% 100%",
+              animation: "ribbonHolo 8s ease-in-out infinite",
+            }}
+          />
+
+          {/* Iridescent gradient — layer 2 (reverse cycle) */}
+          <div
+            className="absolute inset-0"
+            style={{
+              mixBlendMode: "screen",
+              opacity: 0.38,
+              background:
+                "linear-gradient(105deg, rgba(125,211,252,0.6) 0%, rgba(217,70,239,0.55) 50%, rgba(125,211,252,0.6) 100%)",
+              backgroundSize: "300% 100%",
+              animation: "ribbonHolo 6s ease-in-out infinite reverse",
+            }}
+          />
+
+          {/* Top glass highlight — simulates 3D surface curve */}
+          <div
+            className="absolute inset-x-0 top-0"
+            style={{
+              height: "46%",
+              background: "linear-gradient(180deg, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0) 100%)",
+            }}
+          />
+
+          {/* Bottom depth shadow */}
+          <div
+            className="absolute inset-x-0 bottom-0"
+            style={{
+              height: "32%",
+              background: "linear-gradient(0deg, rgba(0,0,0,0.24) 0%, transparent 100%)",
+            }}
+          />
+
+          {/* Top edge bright line */}
+          <div className="absolute inset-x-0 top-0 bg-gradient-to-r from-transparent via-white/80 to-transparent" style={{ height: "2px" }} />
+          {/* Inner top gloss line */}
+          <div className="absolute inset-x-0 top-[3px] h-px bg-gradient-to-r from-transparent via-white/36 to-transparent" />
+          {/* Bottom edge */}
+          <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/28 to-transparent" />
+
+          {/* Shimmer sweep */}
+          <div
+            className="absolute inset-y-0 w-[34%]"
+            style={{
+              background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)",
+              animation: "ribbonSweep 5.5s ease-in-out 0.8s infinite",
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const trustSignals = [
-  ["4D signals", "Price, trust, fit"],
-  ["Live cart AI", "Ranks every option"],
-  ["Zero clutter", "Premium decisions"],
+  ["4D Sinyal", "Fiyat, güven, uyum"],
+  ["Canlı Sepet AI", "Her seçeneği sıralar"],
+  ["Sıfır Karmaşa", "Premium kararlar"],
 ];
 
 const floatingSignals = [
@@ -82,10 +172,10 @@ function ProductFlow() {
 }
 
 const scanItems = [
-  { delay: "0s", path: "scan-product-left", Icon: Package },
-  { delay: "0s", path: "scan-product-right", Icon: ShieldCheck },
-  { delay: "6s", path: "scan-product-left", Icon: Star },
-  { delay: "6s", path: "scan-product-right", Icon: Sparkles },
+  { delay: "0s",   path: "scan-product-left",  Icon: Star },
+  { delay: "0s",   path: "scan-product-right", Icon: Heart },
+  { delay: "6s",   path: "scan-product-left",  Icon: Package },
+  { delay: "6s",   path: "scan-product-right", Icon: Sparkles },
 ];
 
 function ProductScanStream() {
@@ -111,13 +201,13 @@ function ProductScanStream() {
 function FilterLenses() {
   return (
     <div className="pointer-events-none absolute inset-[-56px] z-[70] hidden md:block" aria-hidden="true">
-      {[0, 1].map((item) => (
+      {[0, 1, 2].map((item) => (
         <div
           key={item}
           className="filter-lens absolute left-1/2 top-1/2 h-24 w-24 overflow-hidden rounded-[1.65rem] border border-white/35 bg-white/18 shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_18px_42px_rgba(37,99,235,0.28)]"
           style={{
-            "--lens-angle": `${item * 180 + 8}deg`,
-            "--lens-counter": `${-(item * 180 + 8)}deg`,
+            "--lens-angle": `${item * 120 + 60}deg`,
+            "--lens-counter": `${-(item * 120 + 60)}deg`,
             "--lens-radius": "230px",
           } as CSSProperties}
         >
@@ -155,36 +245,15 @@ function GlassCart() {
         <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,.38)_0%,rgba(255,255,255,.09)_30%,rgba(125,211,252,.16)_52%,rgba(217,70,239,.15)_100%)]" />
         <div className="absolute inset-x-0 top-0 h-1/2 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,.58),transparent_62%)]" />
         <div className="absolute -left-20 top-8 h-56 w-40 rotate-[-18deg] rounded-full bg-white/18 blur-xl" />
-        <div className="absolute right-8 top-8 h-24 w-24 rounded-full border border-white/18 bg-white/[0.05]" />
         <div className="absolute left-8 right-8 top-7 h-px bg-gradient-to-r from-transparent via-white/85 to-transparent" />
-        <div className="absolute left-12 top-12 h-2 w-28 rounded-full bg-white/28" />
-        <div className="absolute left-12 top-20 h-1.5 w-16 rounded-full bg-cyan-100/22" />
-        <div className="absolute bottom-8 right-10 grid grid-cols-2 gap-2 opacity-70">
-          {[0, 1, 2, 3].map((item) => (
-            <span
-              key={item}
-              className="h-8 w-8 rounded-xl border border-white/15 bg-white/[0.06]"
-            />
-          ))}
-        </div>
 
         <div className="absolute inset-0 grid place-items-center">
-          <div className="relative grid h-56 w-56 place-items-center rounded-[2rem] border border-white/28 bg-white/[0.1] shadow-[inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-18px_34px_rgba(10,15,40,0.3),0_18px_55px_rgba(8,13,35,0.24),0_0_48px_rgba(168,85,247,0.18)] md:h-64 md:w-64">
-            <div className="absolute inset-0 rounded-[2rem] bg-[linear-gradient(145deg,rgba(255,255,255,.28),transparent_42%,rgba(34,211,238,.12))]" />
-            <div className="absolute left-5 right-5 top-5 h-px bg-gradient-to-r from-transparent via-white/72 to-transparent" />
-            <div className="absolute inset-5 rounded-[1.65rem] border border-cyan-200/20" />
-            <div className="absolute inset-9 rounded-[1.3rem] border border-white/12 bg-black/5" />
-            <div className="absolute bottom-7 left-8 flex gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-cyan-100/60" />
-              <span className="h-2.5 w-2.5 rounded-full bg-fuchsia-100/50" />
-              <span className="h-2.5 w-2.5 rounded-full bg-white/40" />
-            </div>
-            <div className="absolute -right-4 -top-4 h-16 w-16 rounded-2xl border border-white/18 bg-white/[0.08] shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]" />
+          <div className="relative flex items-center justify-center">
+            <div className="absolute h-40 w-56 rounded-[3rem] bg-cyan-200/12 blur-3xl" />
             <ShoppingCart
-              className="relative z-10 h-28 w-28 text-white/90 drop-shadow-[0_0_26px_rgba(125,211,252,0.72)] md:h-32 md:w-32"
-              strokeWidth={1.08}
+              className="relative z-10 h-32 w-32 text-white/90 drop-shadow-[0_0_36px_rgba(125,211,252,0.82)] md:h-40 md:w-40"
+              strokeWidth={1.0}
             />
-            <div className="absolute left-1/2 top-1/2 h-24 w-36 -translate-x-1/2 -translate-y-1/2 rounded-[2rem] bg-cyan-200/10 blur-2xl" />
           </div>
         </div>
       </div>
@@ -221,6 +290,7 @@ export function HeroWave() {
       <div className="absolute right-0 top-1/4 h-80 w-80 rounded-full bg-blue-500/20 blur-3xl" />
 
       <FloatingSignals />
+      <GlassRibbon />
 
       <div className="pointer-events-none absolute inset-x-0 top-[15%] z-0 select-none text-center">
         <motion.h1
@@ -242,7 +312,7 @@ export function HeroWave() {
         >
           <div className="mx-auto mb-7 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.07] px-4 py-2 text-xs font-medium text-cyan-100 shadow-[0_12px_34px_rgba(125,211,252,0.13)] lg:mx-0">
             <Sparkles className="h-3.5 w-3.5 text-fuchsia-200" />
-            VisionOS-grade shopping intelligence
+            Yapay zeka destekli akıllı alışveriş
           </div>
 
           <h2 className="text-5xl font-black leading-[0.92] tracking-normal text-white drop-shadow-[0_0_28px_rgba(255,255,255,0.12)] sm:text-7xl lg:text-8xl">
@@ -256,17 +326,17 @@ export function HeroWave() {
           <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row lg:justify-start">
             <button
               onClick={focusInput}
-              className="group relative z-50 cursor-pointer inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-semibold text-[#09031a] shadow-[0_18px_48px_rgba(255,255,255,0.14)] transition hover:bg-cyan-50 active:scale-[0.98]"
+              className="btn-glass group relative z-50 cursor-pointer inline-flex h-12 items-center justify-center gap-2 rounded-full px-7 text-sm font-semibold text-white"
             >
-              Start filtering
-              <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+              Filtrelemeye Başla
+              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
             </button>
             <button
               onClick={focusInput}
-              className="relative z-50 cursor-pointer inline-flex h-12 items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-6 text-sm font-semibold text-white shadow-[0_18px_42px_rgba(99,102,241,0.14)] transition hover:border-cyan-200/40 hover:bg-white/[0.1] active:scale-[0.98]"
+              className="btn-holo relative z-50 cursor-pointer inline-flex h-12 items-center justify-center gap-2 rounded-full px-7 text-sm font-semibold text-white"
             >
               <Search className="h-4 w-4 text-cyan-200" />
-              Explore assistant
+              Asistanı Keşfet
             </button>
           </div>
 
@@ -285,9 +355,9 @@ export function HeroWave() {
               <button
                 onClick={handleAnalyze}
                 disabled={!productUrl.trim()}
-                className="relative z-50 cursor-pointer inline-flex h-9 items-center gap-1.5 rounded-xl bg-cyan-400 px-4 text-sm font-semibold text-black transition hover:bg-cyan-300 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="btn-holo relative z-50 cursor-pointer inline-flex h-9 items-center gap-1.5 rounded-xl px-4 text-sm font-semibold text-white disabled:opacity-40 disabled:cursor-not-allowed disabled:animate-none"
               >
-                <Sparkles className="h-3.5 w-3.5" />
+                <Sparkles className="h-3.5 w-3.5 text-cyan-200" />
                 Analiz Et
               </button>
             </div>
