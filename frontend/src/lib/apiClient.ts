@@ -303,6 +303,33 @@ export async function resetPassword(
   }
 }
 
+export async function verifyEmailToken(
+  token: string
+): Promise<SimpleAuthResponse> {
+  try {
+    const res = await fetch(`${API_URL}/auth/verify-email?token=${encodeURIComponent(token)}`);
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.detail || json.error || "Doğrulama başarısız.");
+    return { success: true, message: json.message };
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : "Doğrulama başarısız." };
+  }
+}
+
+export async function resendVerificationEmail(
+  email: string
+): Promise<SimpleAuthResponse> {
+  try {
+    const data = await authPost<{ success: boolean; message: string }>(
+      "/auth/send-verification-email",
+      { email }
+    );
+    return { success: true, message: data.message };
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : "İşlem başarısız." };
+  }
+}
+
 export async function getMe(): Promise<AuthUser | null> {
   try {
     const token =
