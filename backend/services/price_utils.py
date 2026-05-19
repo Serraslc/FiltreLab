@@ -92,3 +92,68 @@ def parse_price_to_string(raw) -> str | None:
     if dec_part > 0:
         return f"{int_str},{dec_part:02d} TL"
     return f"{int_str} TL"
+
+
+def parse_tr_price(raw) -> float | None:
+    """
+    Parse any price representation to a numeric float value.
+
+    Handles Turkish ("1.299,99"), Anglo ("1,299.99"), dot-only thousands
+    ("118.999") and plain ("1299.99") formats. Returns None when no positive
+    numeric value can be extracted.
+    """
+    if raw is None:
+        return None
+    s = str(raw).strip()
+
+    # Strip currency symbols
+    s = (
+        s.replace("₺", "")
+         .replace("TL", "")
+         .replace("$", "")
+         .replace("€", "")
+         .replace("USD", "")
+         .replace("EUR", "")
+         .strip()
+    )
+
+    # Remove any character that's not digit, dot, or comma
+    s = re.sub(r"[^\d.,]", "", s)
+    if not s:
+        return None
+
+    dot_pos = s.rfind(".")
+    comma_pos = s.rfind(",")
+
+    try:
+        if dot_pos > 0 and comma_pos > 0:
+            if dot_pos < comma_pos:
+                # Turkish/European: 1.299,99  →  dot=thousands, comma=decimal
+                float_val = float(s.replace(".", "").replace(",", "."))
+            else:
+                # Anglo: 1,299.99  →  comma=thousands, dot=decimal
+                float_val = float(s.replace(",", ""))
+        elif comma_pos > 0:
+            after_comma = s[comma_pos + 1:]
+            if len(after_comma) == 2:
+                # Decimal comma: 1299,99
+                float_val = float(s.replace(",", "."))
+            else:
+                # Thousands comma only: 1,299
+                float_val = float(s.replace(",", ""))
+        elif dot_pos > 0:
+            after_dot = s[dot_pos + 1:]
+            if len(after_dot) == 2:
+                # Decimal dot: 1299.99
+                float_val = float(s)
+            else:
+                # Thousands dot only: 1.299 / 118.999
+                float_val = float(s.replace(".", ""))
+        else:
+            float_val = float(s)
+    except ValueError:
+        return None
+
+    if float_val <= 0:
+        return None
+    return float_val

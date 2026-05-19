@@ -76,7 +76,10 @@ async def generate_analysis(url: str, include_reviews: bool = False):
         raise ValueError(UNSUPPORTED_SITE_ERROR)
 
     try:
-        extracted_data = await scrape_product(url, max_reviews=1000 if include_reviews else None)
+        # Puanlama (duygu, sahte yorum riski) her zaman yorumlara ihtiyaç duyar,
+        # bu yüzden yorumlar daima çekilir. include_reviews yalnızca ham yorum
+        # listesinin yanıta eklenip eklenmeyeceğini belirler (bkz. aşağıda).
+        extracted_data = await scrape_product(url, max_reviews=1000)
     except Exception as e:
         print("[ANALYZE] scrape_product raised exception:")
         traceback.print_exc()
@@ -107,8 +110,6 @@ async def generate_analysis(url: str, include_reviews: bool = False):
     }:
         raise ValueError(DEMO_ERROR)
     if not price_raw:
-        raise ValueError(DEMO_ERROR)
-    if extracted_data.get("rating") is None:
         raise ValueError(DEMO_ERROR)
 
     # Reject unsafe count sources
@@ -154,9 +155,8 @@ async def generate_analysis(url: str, include_reviews: bool = False):
     if review_stats_raw.get("platformLimitReached"):
         review_stats["platformLimitReached"] = True
 
-    if rating <= 0:
-        raise ValueError(DEMO_ERROR)
-
+    # Rating yoksa (ör. hiç yorumu olmayan yeni ürün) analiz yine de yapılır;
+    # run_scoring rating=None durumunu ele alır ve düşük güvenle puanlar.
     price_val = _parse_price_val(price_str)
 
     # Category detection

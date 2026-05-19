@@ -51,6 +51,7 @@ interface CrossPlatformPricesProps {
   priceStr: string;
   sourceUrl?: string | null;
   sourceImage?: string | null;
+  className?: string;
 }
 
 // ─── Platform config ─────────────────────────────────────────────────────────
@@ -192,7 +193,7 @@ function PlatformCard({
 
   return (
     <div
-      className={`relative rounded-2xl border p-4 flex flex-col gap-3 transition-all ${
+      className={`relative min-w-0 flex-1 rounded-2xl border p-4 flex flex-col gap-3 transition-all ${
         isCheapest
           ? "border-green-400/50 dark:border-green-500/40 bg-green-50/60 dark:bg-green-950/20 shadow-sm"
           : isMostExpensive
@@ -226,13 +227,13 @@ function PlatformCard({
         <>
           {/* Product image */}
           {isValidImage(productImage) && (
-            <div className="relative w-full h-20 rounded-lg overflow-hidden bg-white dark:bg-neutral-800">
+            <div className="relative mx-auto h-20 w-20 rounded-xl overflow-hidden bg-white dark:bg-neutral-800">
               <Image
                 src={productImage}
                 alt={productName || ""}
                 fill
                 className="object-contain p-1"
-                sizes="200px"
+                sizes="80px"
               />
             </div>
           )}
@@ -256,13 +257,13 @@ function PlatformCard({
           )}
 
           {/* Price row */}
-          <div className="flex items-end gap-2">
-            <span className="text-xl font-black" style={{ color: cfg.accentColor }}>
+          <div className="flex flex-col gap-1">
+            <span className="text-2xl font-black leading-tight" style={{ color: cfg.accentColor }}>
               {priceDisplay ?? "—"}
             </span>
             {priceDiffLabel && (
               <span
-                className={`text-xs font-semibold mb-0.5 ${
+                className={`text-xs font-bold ${
                   priceDiffPositive ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
                 }`}
               >
@@ -272,7 +273,7 @@ function PlatformCard({
           </div>
 
           {/* Confidence indicator + Ürüne Git button */}
-          <div className="flex items-center justify-between mt-auto gap-2">
+          <div className="flex flex-col items-stretch mt-auto gap-2">
             {!isSource && match?.confidence && match.confidence !== "not_found" && (
               <div className="flex items-center gap-1 shrink-0">
                 {match.confidence === "high" ? (
@@ -290,7 +291,7 @@ function PlatformCard({
                 href={productUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="ml-auto flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-lg border transition-colors hover:opacity-80"
+                className="flex w-full items-center justify-center gap-1.5 text-xs font-bold px-3 py-2 rounded-lg border transition-colors hover:opacity-80"
                 style={{
                   color: cfg.accentColor,
                   borderColor: cfg.accentColor + "44",
@@ -338,6 +339,7 @@ export function CrossPlatformPrices({
   priceStr,
   sourceUrl,
   sourceImage,
+  className,
 }: CrossPlatformPricesProps) {
   const [data, setData] = useState<CrossPlatformResult | null>(null);
   const [loading, setLoading] = useState(true);
@@ -439,7 +441,7 @@ export function CrossPlatformPrices({
     : (mostExpensiveMatch?.product_url ?? null);
 
   return (
-    <div className="mt-10 pt-8 border-t border-white/10">
+    <div className={className ?? "mt-10 pt-8 border-t border-white/10"}>
       {/* Header */}
       <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
         <TrendingDown className="text-green-400" />
@@ -539,24 +541,26 @@ export function CrossPlatformPrices({
 
       {/* Platform cards */}
       {!loading && data && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {orderedPlatforms.map((platformKey) => {
-            const isSource = platformKey === normalizedSource;
-            return (
-              <PlatformCard
-                key={platformKey}
-                platformKey={platformKey}
-                isSource={isSource}
-                sourcePrice={sourcePrice}
-                sourceName={productName}
-                sourceUrl={sourceUrl}
-                sourceImage={sourceImage}
-                match={matchByPlatform[platformKey]}
-                cheapestPlatform={data.cheapest_platform}
-                mostExpensivePlatform={data.most_expensive_platform ?? null}
-              />
-            );
-          })}
+        <div className="overflow-visible pb-2">
+          <div className="flex flex-nowrap gap-3">
+            {orderedPlatforms.map((platformKey) => {
+              const isSource = platformKey === normalizedSource;
+              return (
+                <PlatformCard
+                  key={platformKey}
+                  platformKey={platformKey}
+                  isSource={isSource}
+                  sourcePrice={sourcePrice}
+                  sourceName={productName}
+                  sourceUrl={sourceUrl}
+                  sourceImage={sourceImage}
+                  match={matchByPlatform[platformKey]}
+                  cheapestPlatform={data.cheapest_platform}
+                  mostExpensivePlatform={data.most_expensive_platform ?? null}
+                />
+              );
+            })}
+          </div>
         </div>
       )}
     </div>

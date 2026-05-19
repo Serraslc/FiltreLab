@@ -7,7 +7,7 @@ import { cn } from "./AnimatedCard";
 interface FinalVerdictProps {
   decision: "ALINABİLİR" | "DİKKATLİ İNCELE" | "BEKLE";
   reason: string;
-  confidenceLevel?: "HIGH_CONFIDENCE" | "MEDIUM_CONFIDENCE" | "LOW_CONFIDENCE";
+  confidenceLevel?: "HIGH_CONFIDENCE" | "MEDIUM_CONFIDENCE" | "LOW_CONFIDENCE" | "NO_REVIEW_TEXT";
   dataWarning?: string | null;
 }
 
@@ -87,7 +87,7 @@ export function FinalVerdict({ decision, reason, confidenceLevel, dataWarning }:
         </span>
       </motion.div>
 
-      {confidenceLevel && (
+      {confidenceLevel && CONFIDENCE_LABEL[confidenceLevel] && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -98,7 +98,7 @@ export function FinalVerdict({ decision, reason, confidenceLevel, dataWarning }:
             "text-xs font-semibold px-3 py-1 rounded-full",
             CONFIDENCE_COLOR[confidenceLevel] ?? CONFIDENCE_COLOR["LOW_CONFIDENCE"]
           )}>
-            {CONFIDENCE_LABEL[confidenceLevel] ?? confidenceLevel}
+            {CONFIDENCE_LABEL[confidenceLevel]}
           </span>
         </motion.div>
       )}

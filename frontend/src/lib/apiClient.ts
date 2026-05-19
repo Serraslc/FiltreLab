@@ -36,7 +36,7 @@ export type AIAnalysisResult = {
   returnRisk: "Düşük" | "Orta" | "Yüksek";
   sentimentScore: number;
   pricePerformance: number | null;
-  confidenceLevel: "HIGH_CONFIDENCE" | "MEDIUM_CONFIDENCE" | "LOW_CONFIDENCE";
+  confidenceLevel: "HIGH_CONFIDENCE" | "MEDIUM_CONFIDENCE" | "LOW_CONFIDENCE" | "NO_REVIEW_TEXT";
   dataWarning: string | null;
   analysis: string;
   shoppingBehavior: string;

@@ -6,7 +6,11 @@ import { motion } from "framer-motion";
 import {
   runAIAnalysis,
   addFavorite,
+  deleteFavorite,
+  getFavorites,
   addPriceTracking,
+  deletePriceTracking,
+  getPriceTracking,
   addAnalysisHistory,
   type AIAnalysisResult,
 } from "@/lib/apiClient";
@@ -14,6 +18,7 @@ import { AnimatedCard } from "@/components/ui/AnimatedCard";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { FinalVerdict } from "@/components/ui/FinalVerdict";
 import { ScanTimeline } from "@/components/ui/ScanTimeline";
+import { CrossPlatformPrices } from "@/components/CrossPlatformPrices";
 import { ShieldAlert, PackageX, BrainCircuit, ArrowLeft, Star, TrendingUp, Zap, Sparkles, Bell, Heart, Loader2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -53,6 +58,11 @@ function DashboardContent() {
   const [result, setResult] = useState<AIAnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [featureMessage, setFeatureMessage] = useState<string | null>(null);
+  const [favoriteId, setFavoriteId] = useState<number | null>(null);
+  const [trackingId, setTrackingId] = useState<number | null>(null);
+  const [statusChecked, setStatusChecked] = useState(false);
+  const [favBusy, setFavBusy] = useState(false);
+  const [trackBusy, setTrackBusy] = useState(false);
   type StepStatus = "pending" | "scanning" | "completed";
   const [timelineSteps, setTimelineSteps] = useState<{ id: number; message: string; status: StepStatus }[]>([
     { id: 1, message: "Link alındı", status: "pending" },
@@ -109,6 +119,27 @@ function DashboardContent() {
 
     return () => { mounted = false; };
   }, [url]);
+
+  // Ürün açıldığında favori / fiyat takibi durumunu kontrol et.
+  useEffect(() => {
+    if (!result) return;
+    const productUrl = result.sourceUrl || url;
+    let active = true;
+    (async () => {
+      const [favRes, trackRes] = await Promise.all([getFavorites(), getPriceTracking()]);
+      if (!active) return;
+      if (favRes.success) {
+        const match = favRes.data.items?.find((it) => it.productUrl === productUrl);
+        setFavoriteId(match ? match.id : null);
+      }
+      if (trackRes.success) {
+        const match = trackRes.data.items?.find((it) => it.productUrl === productUrl);
+        setTrackingId(match ? match.id : null);
+      }
+      setStatusChecked(true);
+    })();
+    return () => { active = false; };
+  }, [result, url]);
 
   if (isScanning) {
     return (
@@ -169,37 +200,63 @@ function DashboardContent() {
 
   if (!result) return null;
 
-  const handleAddPriceTracking = async () => {
-    if (!result) return;
-    const res = await addPriceTracking({
-      productName: result.productName,
-      productUrl: result.sourceUrl || url,
-      currentPrice: result.price || "0 TL",
-      image: result.image ?? null,
-      platform: result.sourcePlatform ?? null,
-    });
-    if (res.success) {
-      setFeatureMessage("Fiyat takibine eklendi!");
+  const handleTogglePriceTracking = async () => {
+    if (!result || trackBusy) return;
+    setTrackBusy(true);
+    if (trackingId !== null) {
+      const res = await deletePriceTracking(trackingId);
+      if (res.success) {
+        setTrackingId(null);
+        setFeatureMessage("Fiyat takibinden çıkarıldı.");
+      } else {
+        setFeatureMessage(res.error === "Backend bağlantısı kurulamadı." ? "Bağlantı hatası." : "İşlem başarısız.");
+      }
     } else {
-      setFeatureMessage(res.error === "Backend bağlantısı kurulamadı." ? "Bağlantı hatası." : "Giriş yapmalısınız.");
+      const res = await addPriceTracking({
+        productName: result.productName,
+        productUrl: result.sourceUrl || url,
+        currentPrice: result.price || "0 TL",
+        image: result.image ?? null,
+        platform: result.sourcePlatform ?? null,
+      });
+      if (res.success) {
+        setTrackingId(res.data.item?.id ?? null);
+        setFeatureMessage("Fiyat takibine eklendi!");
+      } else {
+        setFeatureMessage(res.error === "Backend bağlantısı kurulamadı." ? "Bağlantı hatası." : "Giriş yapmalısınız.");
+      }
     }
+    setTrackBusy(false);
     setTimeout(() => setFeatureMessage(null), 3000);
   };
 
-  const handleAddFavorite = async () => {
-    if (!result) return;
-    const res = await addFavorite({
-      productName: result.productName,
-      productUrl: result.sourceUrl || url,
-      image: result.image ?? null,
-      price: result.price ?? null,
-      platform: result.sourcePlatform ?? null,
-    });
-    if (res.success) {
-      setFeatureMessage("Favorilere eklendi!");
+  const handleToggleFavorite = async () => {
+    if (!result || favBusy) return;
+    setFavBusy(true);
+    if (favoriteId !== null) {
+      const res = await deleteFavorite(favoriteId);
+      if (res.success) {
+        setFavoriteId(null);
+        setFeatureMessage("Favorilerden kaldırıldı.");
+      } else {
+        setFeatureMessage(res.error === "Backend bağlantısı kurulamadı." ? "Bağlantı hatası." : "İşlem başarısız.");
+      }
     } else {
-      setFeatureMessage(res.error === "Backend bağlantısı kurulamadı." ? "Bağlantı hatası." : "Giriş yapmalısınız.");
+      const res = await addFavorite({
+        productName: result.productName,
+        productUrl: result.sourceUrl || url,
+        image: result.image ?? null,
+        price: result.price ?? null,
+        platform: result.sourcePlatform ?? null,
+      });
+      if (res.success) {
+        setFavoriteId(res.data.item?.id ?? null);
+        setFeatureMessage("Favorilere eklendi!");
+      } else {
+        setFeatureMessage(res.error === "Backend bağlantısı kurulamadı." ? "Bağlantı hatası." : "Giriş yapmalısınız.");
+      }
     }
+    setFavBusy(false);
     setTimeout(() => setFeatureMessage(null), 3000);
   };
 
@@ -247,18 +304,20 @@ function DashboardContent() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                   <button
-                    onClick={handleAddPriceTracking}
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[var(--neon-blue)]/30 bg-[var(--neon-blue)]/10 px-4 py-3 text-sm font-bold text-[var(--neon-blue)] hover:bg-[var(--neon-blue)]/15 transition-colors"
+                    onClick={handleTogglePriceTracking}
+                    disabled={!statusChecked || trackBusy}
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[var(--neon-blue)]/30 bg-[var(--neon-blue)]/10 px-4 py-3 text-sm font-bold text-[var(--neon-blue)] hover:bg-[var(--neon-blue)]/15 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     <Bell className="h-4 w-4" />
-                    Fiyat Takibine Ekle
+                    {trackingId !== null ? "Takipten Çıkar" : "Fiyat Takibine Ekle"}
                   </button>
                   <button
-                    onClick={handleAddFavorite}
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[var(--neon-pink)]/30 bg-[var(--neon-pink)]/10 px-4 py-3 text-sm font-bold text-[var(--neon-pink)] hover:bg-[var(--neon-pink)]/15 transition-colors"
+                    onClick={handleToggleFavorite}
+                    disabled={!statusChecked || favBusy}
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[var(--neon-pink)]/30 bg-[var(--neon-pink)]/10 px-4 py-3 text-sm font-bold text-[var(--neon-pink)] hover:bg-[var(--neon-pink)]/15 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    <Heart className="h-4 w-4" />
-                    Favorilere Ekle
+                    <Heart className={`h-4 w-4 ${favoriteId !== null ? "fill-current" : ""}`} />
+                    {favoriteId !== null ? "Favorilerden Kaldır" : "Favorilere Ekle"}
                   </button>
                 </div>
 
@@ -268,26 +327,6 @@ function DashboardContent() {
                   </p>
                 )}
                 
-                <div className="flex items-center gap-4 pt-4 border-t border-black/10 dark:border-white/10 text-sm">
-                  <div className="flex flex-col gap-1">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">İade Riski</span>
-                    <span className={`font-bold ${result.returnRisk === "Yüksek" ? "text-red-600 dark:text-red-400" : result.returnRisk === "Orta" ? "text-yellow-700 dark:text-yellow-400" : "text-green-700 dark:text-green-400"}`}>
-                      {result.returnRisk}
-                    </span>
-                  </div>
-                  <div className="text-gray-500 dark:text-gray-400 border-l border-black/10 dark:border-white/10 pl-4">
-                    {isNumber(result.reviewCount) && result.reviewCount > 0
-                      ? <span>{result.reviewCount.toLocaleString("tr-TR")} Değerlendirme</span>
-                      : <span className="text-gray-500 dark:text-gray-400">Değerlendirme verisi yok</span>
-                    }
-                  </div>
-                  <div className="text-gray-500 dark:text-gray-400 border-l border-black/10 dark:border-white/10 pl-4">
-                    {result.questionCount === null || result.questionCount === undefined
-                      ? <span>Soru: Veri yok</span>
-                      : <span>{result.questionCount.toLocaleString("tr-TR")} Soru</span>
-                    }
-                  </div>
-                </div>
               </div>
             </AnimatedCard>
 
@@ -360,72 +399,98 @@ function DashboardContent() {
               dataWarning={result.dataWarning}
             />
 
-            {/* Alternatives */}
+            {/* Yapay Zeka Kararı */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1 }}
+              className="mt-14 pt-10 border-t border-white/10"
+            >
+              <h3 className="text-xl font-bold mb-5 flex items-center gap-2">
+                <BrainCircuit className="text-[var(--neon-blue)]" /> Yapay Zeka Kararı
+              </h3>
+              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                {result.analysis}
+              </p>
+            </motion.div>
+
+            {/* Platform Fiyat Karşılaştırması — tam genişlik */}
+            <div className="mt-16 pt-12 border-t-2 border-white/10 flex flex-wrap gap-8 items-start">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.1 }}
+                className="order-1 w-full flex-[1_1_100%]"
+              >
+                <CrossPlatformPrices
+                  sourcePlatform={result.sourcePlatform ?? ""}
+                  productName={result.productName ?? ""}
+                  brand={result.brand ?? ""}
+                  priceStr={result.price ?? ""}
+                  sourceUrl={result.sourceUrl}
+                  sourceImage={result.image}
+                  className="mt-0 pt-0 border-t-0"
+                />
+              </motion.div>
+
+            {/* Daha İyi Alternatif Bulundu — tam genişlik, belirgin ayraçla */}
             <motion.div
               id="alternatives"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1 }}
-              className="mt-12 pt-8 border-t border-white/10"
+              transition={{ delay: 1.2 }}
+              className="order-2 flex-[1_1_100%]"
             >
-              <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                <BrainCircuit className="text-[var(--neon-blue)]" /> Yapay Zeka Kararı
+              <h3 className="text-xl font-bold mb-8 flex items-center">
+                <Sparkles className="w-5 h-5 text-[var(--neon-blue)] mr-2" />
+                Daha İyi Alternatif Bulundu
               </h3>
-              <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
-                {result.analysis}
-              </p>
-              
               {(result.betterAlternatives || []).length > 0 ? (
-                <>
-                  <h3 className="text-xl font-bold mb-6 flex items-center">
-                    <Sparkles className="w-5 h-5 text-[var(--neon-blue)] mr-2" />
-                    Daha İyi Alternatif Bulundu
-                  </h3>
-                  <div className="grid grid-cols-1 gap-4">
-                    {(result.betterAlternatives || []).map((alt, idx) => (
-                      <Link
-                        href={alt.url || "#"}
-                        key={idx}
-                        className="block group"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <AnimatedCard className="flex items-center p-4 gap-4 bg-white/75 dark:bg-white/5 border-black/10 dark:border-white/10 group-hover:bg-white dark:group-hover:bg-white/10 group-hover:border-[var(--neon-blue)]/30 transition-all cursor-pointer">
-                          <div className="relative w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-white">
-                            {isValidImageUrl(alt.image) ? (
-                              <Image src={alt.image} alt={alt.name || "Ürün görseli"} fill className="object-contain p-1" sizes="96px" />
-                            ) : (
-                              <div className="flex h-full w-full items-center justify-center bg-gray-100 dark:bg-neutral-800 text-gray-500 dark:text-neutral-500 text-xs text-center p-1 leading-tight">
-                                Görsel Yok
-                              </div>
+                <div className="grid grid-cols-1 gap-6">
+                  {(result.betterAlternatives || []).map((alt, idx) => (
+                    <Link
+                      href={alt.url || "#"}
+                      key={idx}
+                      className="block group"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <AnimatedCard className="flex items-center p-5 lg:p-6 gap-4 lg:gap-5 bg-white/75 dark:bg-white/5 border-black/10 dark:border-white/10 group-hover:bg-white dark:group-hover:bg-white/10 group-hover:border-[var(--neon-blue)]/30 transition-all cursor-pointer">
+                        <div className="relative w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-white">
+                          {isValidImageUrl(alt.image) ? (
+                            <Image src={alt.image} alt={alt.name || "Ürün görseli"} fill className="object-contain p-1" sizes="96px" />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center bg-gray-100 dark:bg-neutral-800 text-gray-500 dark:text-neutral-500 text-xs text-center p-1 leading-tight">
+                              Görsel Yok
+                            </div>
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 mb-1.5">
+                            {alt.platform && (
+                              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 border border-black/10 dark:border-white/10">
+                                {alt.platform}
+                              </span>
                             )}
                           </div>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              {alt.platform && (
-                                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 border border-black/10 dark:border-white/10">
-                                  {alt.platform}
-                                </span>
-                              )}
-                            </div>
-                            <h4 className="font-bold text-base group-hover:text-[var(--neon-blue)] transition-colors">{alt.name}</h4>
-                            <p className="text-lg text-[var(--neon-blue)] font-black mt-1">{alt.price}</p>
-                            <p className="text-sm text-gray-700 dark:text-gray-300 mt-1 leading-relaxed">{alt.reason}</p>
-                          </div>
-                          <div className="hidden sm:flex px-4 py-2 rounded-lg bg-[var(--neon-blue)]/10 text-[var(--neon-blue)] text-sm font-bold border border-[var(--neon-blue)]/20 whitespace-nowrap">
-                            Ürüne Git
-                          </div>
-                        </AnimatedCard>
-                      </Link>
-                    ))}
-                  </div>
-                </>
+                          <h4 className="font-bold text-base leading-snug break-normal group-hover:text-[var(--neon-blue)] transition-colors">{alt.name}</h4>
+                          <p className="text-lg text-[var(--neon-blue)] font-black mt-1.5">{alt.price}</p>
+                          <p className="text-sm text-gray-700 dark:text-gray-300 mt-2 leading-relaxed">{alt.reason}</p>
+                        </div>
+                        <div className="hidden xl:flex px-4 py-2 rounded-lg bg-[var(--neon-blue)]/10 text-[var(--neon-blue)] text-sm font-bold border border-[var(--neon-blue)]/20 whitespace-nowrap">
+                          Ürüne Git
+                        </div>
+                      </AnimatedCard>
+                    </Link>
+                  ))}
+                </div>
               ) : (
-                <AnimatedCard className="text-center p-8 border-dashed border-white/20 bg-transparent">
+                <AnimatedCard className="text-center p-10 border-dashed border-white/20 bg-transparent">
                   <p className="text-gray-500 dark:text-gray-400">Doğrulanmış alternatif ürün bulunamadı.</p>
                 </AnimatedCard>
               )}
             </motion.div>
+            </div>
 
           </div>
         </div>
