@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ExternalLink, AlertTriangle, CheckCircle2, XCircle, Loader2, TrendingDown, TrendingUp } from "lucide-react";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+import { API_URL } from "@/lib/api";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
