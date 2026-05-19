@@ -27,6 +27,7 @@
 # SQLite
 *.db
 backend/app.db
+backend/app.db-journal
 
 # debug
 npm-debug.log*
